@@ -14,4 +14,6 @@ https://fxdocs.github.io/docs/html5/
 
 https://gitee.com/xwintop/xJavaFxTool
 
+https://github.com/864381832/xJavaFxTool/releases/download/1.0.0/xJavaFxTool-1.0.0-windows-x64.exe
+
 https://jenkov.com/tutorials/javafx/index.html
