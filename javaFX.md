@@ -9,3 +9,7 @@ FXML样式参考 https://openjfx.cn/javadoc/22/javafx.fxml/javafx/fxml/doc-files
 CSS样式参考 https://openjfx.cn/javadoc/22/javafx.graphics/javafx/scene/doc-files/cssref.html
 
 https://openjfx.cn/javadoc/22/
+
+https://fxdocs.github.io/docs/html5/
+
+https://gitee.com/xwintop/xJavaFxTool
