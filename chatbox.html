@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仿 GPT 对话交互</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease;
+        }
+
+       .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+       .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            /* 设置整体滚动条样式 */
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+
+       .chat-box::-webkit-scrollbar {
+            width: 6px; /* 调小整体滚动条宽度 */
+        }
+
+       .chat-box::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+       .chat-box::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+       .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 70%;
+            display: inline-block;
+            word-wrap: break-word;
+        }
+
+       .user-message {
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            align-self: flex-end;
+        }
+
+       .bot-message {
+            background-color: #e8eaf6;
+            border: 1px solid #ccc;
+            align-self: flex-start;
+            position: relative;
+        }
+
+       .input-box {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 5px 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        pre code.java {
+            /* 设置代码块滚动条样式 */
+            scrollbar-width: thin;
+            scrollbar-color: #666 #444;
+        }
+
+        pre code.java::-webkit-scrollbar {
+            width: 4px; /* 进一步调小代码块滚动条宽度 */
+        }
+
+        pre code.java::-webkit-scrollbar-track {
+            background: #e8eaf6; /* 白天模式下代码块滚动条轨道颜色 */
+            border-radius: 10px;
+        }
+
+        pre code.java::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 10px;
+        }
+
+        /* 夜间模式样式 */
+        body.night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        body.night-mode.chat-box {
+            border-color: #666;
+        }
+
+        body.night-mode input[type="text"] {
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
+        }
+
+        body.night-mode button {
+            background-color: #008CBA;
+        }
+
+        body.night-mode.message {
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
+        }
+
+        body.night-mode pre code.java {
+            background-color: #444;
+            color: #fff;
+            /* 设置代码块滚动条样式 */
+            scrollbar-width: thin;
+            scrollbar-color: #666 #444;
+        }
+
+        body.night-mode pre code.java::-webkit-scrollbar {
+            width: 4px; /* 进一步调小代码块滚动条宽度 */
+        }
+
+        body.night-mode pre code.java::-webkit-scrollbar-track {
+            background: #444;
+            border-radius: 10px;
+        }
+
+        body.night-mode pre code.java::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 10px;
+        }
+
+       .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            display: none;
+        }
+
+        pre:hover.copy-button {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="chat-box"></div>
+        <div class="input-box">
+            <input type="text" placeholder="输入你的问题...">
+            <button>发送</button>
+        </div>
+        <label class="switch">
+            <input type="checkbox" id="night-mode-toggle">
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+    <script>
+        // 切换夜间模式
+        document.getElementById('night-mode-toggle').addEventListener('change', function () {
+            document.body.classList.toggle('night-mode');
+        });
+
+        // 发送消息
+        document.querySelector('button').addEventListener('click', function () {
+            const input = document.querySelector('input[type="text"]');
+            const message = input.value;
+            if (message.trim()!== '') {
+                const chatBox = document.querySelector('.chat-box');
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.classList.add('message', 'user-message');
+                userMessageDiv.textContent = '你：' + message;
+                chatBox.appendChild(userMessageDiv);
+                input.value = '';
+
+                // 模拟回复 Java 代码，逐个字符输出
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.classList.add('message', 'bot-message');
+                let replyText = '回复：';
+                let index = 0;
+                const intervalId = setInterval(() => {
+                    if (index < replyText.length) {
+                        botMessageDiv.textContent += replyText[index];
+                        index++;
+                    } else {
+                        clearInterval(intervalId);
+                        setTimeout(() => {
+                            const codeBlock = document.createElement('pre');
+                            const code = document.createElement('code');
+                            code.textContent = `public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`;
+                            code.classList.add('java');
+                            codeBlock.appendChild(code);
+                            botMessageDiv.appendChild(codeBlock);
+
+                            // 添加复制按钮
+                            const copyButton = document.createElement('button');
+                            copyButton.classList.add('copy-button');
+                            copyButton.title = '复制';
+                            copyButton.innerHTML = '📋';
+                            codeBlock.appendChild(copyButton);
+                            chatBox.appendChild(botMessageDiv);
+                            hljs.highlightAll();
+
+                            // 自动滚动到最后一行
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }, 500);
+                    }
+                }, 100);
+
+                chatBox.appendChild(botMessageDiv);
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('copy-button')) {
+                const codeBlock = event.target.parentNode;
+                const codeText = codeBlock.querySelector('code').textContent;
+                const tempInput = document.createElement('textarea');
+                tempInput.value = codeText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                event.target.innerHTML = '✔';
+            }
+        });
+
+        // 初始化代码高亮
+        document.addEventListener('DOMContentLoaded', function () {
+            hljs.highlightAll();
+        });
+
+        // 监听 chat-box 的变化，实现自动滚动
+        const chatBox = document.querySelector('.chat-box');
+        const observer = new MutationObserver(() => {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+        observer.observe(chatBox, { childList: true });
+    </script>
+</body>
+
+</html>
