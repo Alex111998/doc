@@ -155,6 +155,10 @@
             background: #666;
             border-radius: 10px;
         }
+		
+		.code-div {
+			position: relative;
+		}
 
        .copy-button {
             position: absolute;
@@ -164,7 +168,6 @@
             background: none;
             border: none;
             padding: 0;
-            display: none;
         }
 
         pre:hover.copy-button {
@@ -215,30 +218,47 @@
                         index++;
                     } else {
                         clearInterval(intervalId);
-                        setTimeout(() => {
-                            const codeBlock = document.createElement('pre');
-                            const code = document.createElement('code');
-                            code.textContent = `public class HelloWorld {
+						
+						// start code block
+						const codeDiv = document.createElement('div');
+						codeDiv.classList.add('code-div');
+						
+						const codeBlock = document.createElement('pre');
+                        const code = document.createElement('code');
+						code.classList.add('java');
+                        codeBlock.appendChild(code);
+                        codeDiv.appendChild(codeBlock);
+						botMessageDiv.appendChild(codeDiv);
+
+                        chatBox.appendChild(botMessageDiv);
+						
+						const codeContent = `public class HelloWorld {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
     }
 }`;
-                            code.classList.add('java');
-                            codeBlock.appendChild(code);
-                            botMessageDiv.appendChild(codeBlock);
-
-                            // 添加复制按钮
-                            const copyButton = document.createElement('button');
-                            copyButton.classList.add('copy-button');
-                            copyButton.title = '复制';
-                            copyButton.innerHTML = '📋';
-                            codeBlock.appendChild(copyButton);
-                            chatBox.appendChild(botMessageDiv);
-                            hljs.highlightAll();
-
-                            // 自动滚动到最后一行
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        }, 500);
+						let codeIndex = 0;
+						const codeIntervalId = setInterval(() => {
+							if (codeIndex < codeContent.length) {
+								code.textContent += codeContent[codeIndex];
+								codeIndex++;
+								hljs.highlightAll();
+								// 自动滚动到最后一行
+								chatBox.scrollTop = chatBox.scrollHeight;
+							} else {
+								clearInterval(codeIntervalId);
+								
+								// 添加复制按钮
+								const copyButton = document.createElement('button');
+								copyButton.classList.add('copy-button');
+								copyButton.title = '复制';
+								copyButton.innerHTML = '📋';
+								codeDiv.appendChild(copyButton);
+							}
+						}, 10);
+						
+						// end code block
+                        
                     }
                 }, 100);
 
